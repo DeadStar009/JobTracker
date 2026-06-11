@@ -3,4 +3,3 @@ id,company,role,date_added,status,salary,location,notes,color,archived
 0xA14E99,QUANTUM_LOGIC_LABS,INFRA_ARCHITECT_L6,2023-10-22,REJECTED,150k-180k,AUSTIN_TX,Referral sent,,false
 0xD77B21,VOID_PROTOCOLS,SECURITY_RESEARCHER,2023-10-20,REJECTED,120k-150k,NYC_NY,Reapply after 6 months,,false
 0x488120,TT,T,2026-06-02,QUEUED,T,T,T,,true
-0x2CAA9C,TRACEX TECHNOLOGIES,SDE INTERN,2026-06-02,INTERVIEWING,25000 per month,"BANGALORE, INDIA",https://tracextech.com/,red,false
