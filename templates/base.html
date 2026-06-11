@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{% block title %}JOB_TRACKER_V1.0{% endblock %}</title>
+    <style>
+        html, body { background-color: #0b141c; color: #dae3ee; }
+        html:not(.ready) { visibility: hidden; }
+        .nav-item { color: var(--on-surface-variant); }
+        .nav-item.active { color: var(--primary); }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.documentElement.classList.add("ready");
+        });
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@200;400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <div class="scanlines"></div>
+    <header class="topbar">
+        <div class="topbar-left">
+            <span class="material-symbols-outlined">terminal</span>
+            <span class="wordmark">JOB_TRACKER_V1.0</span>
+        </div>
+        <div class="topbar-search">
+            <span class="search-prefix">grep -r</span>
+            <input id="globalSearch" type="text" placeholder="search_applications..." value="{{ request.args.get('q', '') }}" />
+            <span class="material-symbols-outlined">search</span>
+        </div>
+        <div class="topbar-actions">
+            <a class="icon-button" href="{{ url_for('export_csv') }}" title="Export CSV">
+                <span class="material-symbols-outlined">download</span>
+            </a>
+            <button class="icon-button" type="button" data-modal-open="settings" aria-label="Settings">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+            <div class="window-controls">
+                <button class="window-btn window-minimize" onclick="minimizeWindow()">
+                    <span class="material-symbols-outlined">minimize</span>
+                </button>
+                <button class="window-btn window-close" onclick="closeWindow()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">SYSTEM_MENU</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item {% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                <span class="material-symbols-outlined">grid_view</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav-item {% if request.path == '/applications' %}active{% endif %}" href="{{ url_for('applications') }}">
+                <span class="material-symbols-outlined">list_alt</span>
+                <span>Applications</span>
+            </a>
+            <a class="nav-item {% if request.path == '/analytics' %}active{% endif %}" href="{{ url_for('analytics') }}">
+                <span class="material-symbols-outlined">analytics</span>
+                <span>Analytics</span>
+            </a>
+            <a class="nav-item {% if request.path == '/archived' %}active{% endif %}" href="{{ url_for('archived') }}">
+                <span class="material-symbols-outlined">archive</span>
+                <span>Archived</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="avatar">RU</div>
+                <div class="user-meta">
+                    <div class="user-name">ROOT_USER</div>
+                    <div class="user-status">Session: ACTIVE</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="modal" id="entryModal" aria-hidden="true" hidden>
+        <div class="modal-backdrop" data-modal-close="entry"></div>
+        <div class="modal-panel">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="terminal-title">[ USER@LOCAL: ADD_JOB ]</div>
+                <button class="icon-button" type="button" data-modal-close="entry" aria-label="Close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form class="terminal-body" method="post" action="{{ url_for('entry') }}">
+                <div class="terminal-message">
+                    <p>SYSTEM INITIALIZED. ENTERING DATA_ENTRY_MODE...</p>
+                    <p>TYPE 'HELP' FOR LIST OF COMMANDS OR FILL PARAMETERS BELOW.</p>
+                </div>
+                <div class="form-grid">
+                    <label class="form-field">
+                        <span class="field-label field-label-company">root@tracker:~/company$ <em>--required</em></span>
+                        <input name="company" required placeholder="ENTER_ENTITY_NAME" />
+                    </label>
+                    <label class="form-field">
+                        <span class="field-label field-label-role">root@tracker:~/role$ <em>--required</em></span>
+                        <input name="role" required placeholder="ENTER_POSITION_TITLE" />
+                    </label>
+                    <label class="form-field">
+                        <span class="field-label field-label-salary">root@tracker:~/comp$</span>
+                        <input name="salary" placeholder="EST_SALARY_RANGE" />
+                    </label>
+                    <label class="form-field">
+                        <span class="field-label field-label-location">root@tracker:~/location$</span>
+                        <input name="location" placeholder="LOCATION_CITY_COUNTRY" />
+                    </label>
+                    <label class="form-field">
+                        <span class="field-label field-label-status">root@tracker:~/status$</span>
+                        <select name="status">
+                            {% for status in status_order %}
+                            <option value="{{ status }}">{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="form-field">
+                        <span class="field-label field-label-color">root@tracker:~/priority$</span>
+                        <select name="color">
+                            <option value="">NONE</option>
+                            <option value="red">HIGH_PRIORITY</option>
+                            <option value="blue">FOCUS</option>
+                            <option value="green">PROMISING</option>
+                            <option value="yellow">FOLLOW_UP</option>
+                            <option value="purple">RESEARCH</option>
+                            <option value="orange">NETWORKING</option>
+                        </select>
+                    </label>
+                    <label class="form-field full">
+                        <span class="field-label field-label-notes">root@tracker:~/metadata$</span>
+                        <textarea name="notes" rows="4" placeholder="ATTACH_LINKS_OR_NOTES"></textarea>
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button class="button button-secondary" type="button" data-modal-close="entry">CANCEL</button>
+                    <button class="button button-primary" type="submit">SAVE_ENTRY</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal" aria-hidden="true" hidden>
+        <div class="modal-backdrop" data-modal-close="settings"></div>
+        <div class="modal-panel compact">
+            <div class="terminal-header">
+                <div class="terminal-title">[ SYSTEM_SETTINGS ]</div>
+                <button class="icon-button" type="button" data-modal-close="settings" aria-label="Close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-message">
+                    <p>CONFIGURATION MODULE ONLINE.</p>
+                    <p>Adjust preferences in a future build.</p>
+                </div>
+                <div class="form-actions">
+                    <button class="button button-secondary" type="button" data-modal-close="settings">CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="notesModal" aria-hidden="true" hidden>
+        <div class="modal-backdrop" data-notes-close></div>
+        <div class="modal-panel compact">
+            <div class="terminal-header">
+                <div class="terminal-title" id="notesTitle">[ NOTES ]</div>
+                <button class="icon-button" type="button" data-notes-close aria-label="Close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-message" id="notesBody">No notes available.</div>
+                <div class="form-actions">
+                    <button class="button button-secondary" type="button" data-notes-close>CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="detailsModal" aria-hidden="true" hidden>
+        <div class="modal-backdrop" data-details-close></div>
+        <div class="modal-panel">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+                <div class="terminal-title" id="detailsTitle">[ ENTRY_DETAILS ]</div>
+                <button class="icon-button" type="button" data-details-close aria-label="Close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="terminal-body">
+                <div class="details-grid" id="detailsGrid"></div>
+                <div class="terminal-message" id="detailsNotes"></div>
+                <div class="form-actions">
+                    <button class="button button-secondary" type="button" data-details-close>CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="status-bar">
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span class="status-text">STATUS: READY</span>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-log" id="statusLog">[System] jobs.csv updated successfully</div>
+        <div class="status-meta">UTF-8&nbsp;&nbsp;LF&nbsp;&nbsp;JS/TS</div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

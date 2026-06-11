@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Applications | JOB_TRACKER_V1.0{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h1>Applications</h1>
+        <div class="page-actions">
+            <a class="button button-secondary" href="{{ url_for('export_csv') }}">EXPORT_CSV</a>
+            <button class="button button-primary" type="button" data-modal-open="entry">NEW_ENTRY</button>
+        </div>
+    </header>
+
+    <div class="table-card">
+        <div class="table-header">
+            <h2>
+                <span class="material-symbols-outlined">list_alt</span>
+                ACTIVE_TRACKING
+            </h2>
+            <div class="table-actions">
+                <div class="inline-filter">
+                    <span class="material-symbols-outlined">filter_list</span>
+                    <select id="statusFilter">
+                        <option value="">ALL_STATUS</option>
+                        {% for status in status_order %}
+                        <option value="{{ status }}">{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table id="applicationsTable">
+                <thead>
+                    <tr>
+                        <th>ID_KEY</th>
+                        <th>COMPANY_NAME</th>
+                        <th>ROLE_SPEC</th>
+                        <th>LOCATION</th>
+                        <th>DATE_ADDED</th>
+                        <th>DAYS_SINCE</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                        <th>NOTES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr class="row-click {% if job.color %}row-color-{{ job.color }}{% endif %}" data-status="{{ job.status }}" data-details
+                        data-id="{{ job.id }}"
+                        data-company="{{ job.company }}"
+                        data-role="{{ job.role }}"
+                        data-location="{{ job.location }}"
+                        data-date="{{ job.date_added }}"
+                        data-days="{{ job.days_since }}"
+                        data-status-value="{{ job.status }}"
+                        data-salary="{{ job.salary }}"
+                        data-color="{{ job.color }}"
+                        data-notes="{{ job.notes|e }}">
+                        <td class="mono primary">{{ job.id }}</td>
+                        <td class="mono bold">{{ job.company }}</td>
+                        <td class="mono muted">{{ job.role }}</td>
+                        <td class="mono muted">{{ job.location }}</td>
+                        <td class="mono muted">{{ job.date_added }}</td>
+                        <td class="mono muted">{{ job.days_since }}d</td>
+                        <td>
+                            <span class="chip chip-{{ job.status|lower }}">{{ job.status }}</span>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <form method="post" action="{{ url_for('update_status', job_id=job.id) }}">
+                                    <select name="status" class="status-select">
+                                        {% for status in status_order %}
+                                        <option value="{{ status }}" {% if status == job.status %}selected{% endif %}>{{ status }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="icon-button" type="submit" title="Update status">
+                                        <span class="material-symbols-outlined">sync</span>
+                                    </button>
+                                </form>
+                                <form method="post" action="{{ url_for('archive', job_id=job.id) }}">
+                                    <button class="icon-button" type="submit" title="Archive entry">
+                                        <span class="material-symbols-outlined">archive</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="icon-button" type="button" data-notes="{{ job.notes|e }}" data-notes-title="{{ job.company }}" data-stop-row>
+                                <span class="material-symbols-outlined">sticky_note_2</span>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="empty">No active applications. Add a new entry to start tracking.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

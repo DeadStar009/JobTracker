@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | JOB_TRACKER_V1.0{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h1>Dashboard</h1>
+        <div class="page-actions">
+            <a class="button button-secondary" href="{{ url_for('export_csv') }}">EXPORT_CSV</a>
+            <button class="button button-primary" type="button" data-modal-open="entry">NEW_ENTRY</button>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">TOTAL_QUEUE</div>
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-bar"><span style="width: {{ 100 if total else 0 }}%"></span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">INTERVIEWS_PENDING</div>
+            <div class="stat-value accent">{{ interviews }}</div>
+            <div class="stat-bar"><span style="width: {{ (interviews / total * 100) if total else 0 }}%"></span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">SUCCESS_RATE</div>
+            <div class="stat-value">{{ "%.1f"|format(success_rate) }}%</div>
+            <div class="stat-bar"><span style="width: {{ success_rate if success_rate < 100 else 100 }}%"></span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">SYS_UPTIME</div>
+            <div class="stat-value muted">{{ "%.1f"|format(uptime) }}%</div>
+            <div class="stat-bar"><span style="width: {{ uptime if uptime < 100 else 100 }}%"></span></div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header">
+            <h2>
+                <span class="material-symbols-outlined">database</span>
+                MASTER_JOB_LIST
+            </h2>
+            <div class="table-actions">
+                <a class="button button-secondary" href="{{ url_for('applications') }}">VIEW_ALL</a>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID_KEY</th>
+                        <th>COMPANY_NAME</th>
+                        <th>ROLE_SPEC</th>
+                        <th>DATE_ADDED</th>
+                        <th>DAYS_SINCE</th>
+                        <th>STATUS</th>
+                        <th>NOTES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr class="row-click {% if job.color %}row-color-{{ job.color }}{% endif %}" data-details
+                        data-id="{{ job.id }}"
+                        data-company="{{ job.company }}"
+                        data-role="{{ job.role }}"
+                        data-location="{{ job.location }}"
+                        data-date="{{ job.date_added }}"
+                        data-days="{{ job.days_since }}"
+                        data-status="{{ job.status }}"
+                        data-salary="{{ job.salary }}"
+                        data-color="{{ job.color }}"
+                        data-notes="{{ job.notes|e }}">
+                        <td class="mono primary">{{ job.id }}</td>
+                        <td class="mono bold">{{ job.company }}</td>
+                        <td class="mono muted">{{ job.role }}</td>
+                        <td class="mono muted">{{ job.date_added }}</td>
+                        <td class="mono muted">{{ job.days_since }}d</td>
+                        <td>
+                            <span class="chip chip-{{ job.status|lower }}">{{ job.status }}</span>
+                        </td>
+                        <td>
+                            <button class="icon-button" type="button" data-notes="{{ job.notes|e }}" data-notes-title="{{ job.company }}" data-stop-row>
+                                <span class="material-symbols-outlined">sticky_note_2</span>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty">No entries found. Add a job to begin.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

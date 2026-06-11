@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Archived | JOB_TRACKER_V1.0{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h1>Archived</h1>
+        <div class="page-actions">
+            <a class="button button-secondary" href="{{ url_for('applications') }}">BACK_TO_ACTIVE</a>
+        </div>
+    </header>
+
+    <div class="table-card">
+        <div class="table-header">
+            <h2>
+                <span class="material-symbols-outlined">archive</span>
+                ARCHIVED_LOG
+            </h2>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID_KEY</th>
+                        <th>COMPANY_NAME</th>
+                        <th>ROLE_SPEC</th>
+                        <th>DATE_ADDED</th>
+                        <th>DAYS_SINCE</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                        <th>NOTES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr class="{% if job.color %}row-color-{{ job.color }}{% endif %}">
+                        <td class="mono primary">{{ job.id }}</td>
+                        <td class="mono bold">{{ job.company }}</td>
+                        <td class="mono muted">{{ job.role }}</td>
+                        <td class="mono muted">{{ job.date_added }}</td>
+                        <td class="mono muted">{{ job.days_since }}d</td>
+                        <td>
+                            <span class="chip chip-{{ job.status|lower }}">{{ job.status }}</span>
+                        </td>
+                        <td>
+                            <form method="post" action="{{ url_for('unarchive', job_id=job.id) }}">
+                                <button class="icon-button" type="submit" title="Restore entry">
+                                    <span class="material-symbols-outlined">restart_alt</span>
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <button class="icon-button" type="button" data-notes="{{ job.notes|e }}" data-notes-title="{{ job.company }}">
+                                <span class="material-symbols-outlined">sticky_note_2</span>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="empty">No archived applications.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

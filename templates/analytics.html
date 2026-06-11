@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics | JOB_TRACKER_V1.0{% endblock %}
+
+{% block content %}
+<section class="page">
+    <header class="page-header">
+        <h1>Analytics</h1>
+        <div class="page-actions">
+            <a class="button button-secondary" href="{{ url_for('applications') }}">VIEW_APPLICATIONS</a>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">TOTAL_ACTIVE</div>
+            <div class="stat-value">{{ total_active }}</div>
+            <div class="stat-bar"><span style="width: {{ 100 if total_active else 0 }}%"></span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">AVG_DAYS_OPEN</div>
+            <div class="stat-value accent">{{ avg_days }}d</div>
+            <div class="stat-bar"><span style="width: {{ avg_days if avg_days < 100 else 100 }}%"></span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">INTERVIEWING</div>
+            <div class="stat-value">{{ by_status.get('INTERVIEWING', 0) }}</div>
+            <div class="stat-bar"><span style="width: {{ (by_status.get('INTERVIEWING', 0) / total_active * 100) if total_active else 0 }}%"></span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">OFFERED</div>
+            <div class="stat-value muted">{{ by_status.get('OFFERED', 0) }}</div>
+            <div class="stat-bar"><span style="width: {{ (by_status.get('OFFERED', 0) / total_active * 100) if total_active else 0 }}%"></span></div>
+        </div>
+    </div>
+
+    <div class="analytics-grid">
+        <div class="panel">
+            <div class="panel-title">STATUS_BREAKDOWN</div>
+            <div class="panel-body">
+                {% for status, count in by_status.items() %}
+                <div class="stat-row">
+                    <span class="mono">{{ status }}</span>
+                    <div class="bar">
+                        <span style="width: {{ count * 10 }}%"></span>
+                    </div>
+                    <span class="mono muted">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-title">MONTHLY_VOLUME</div>
+            <div class="panel-body">
+                <div class="chart">
+                    {% for label, value in month_pairs %}
+                    <div class="chart-row">
+                        <span class="mono muted">{{ label }}</span>
+                        <div class="bar">
+                            <span style="width: {{ value * 12 }}%"></span>
+                        </div>
+                        <span class="mono muted">{{ value }}</span>
+                    </div>
+                    {% else %}
+                    <div class="empty">No analytics yet. Add entries to generate stats.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-title">TOP_LOCATIONS</div>
+            <div class="panel-body">
+                {% for location, count in location_pairs %}
+                <div class="stat-row">
+                    <span class="mono">{{ location }}</span>
+                    <div class="bar">
+                        <span style="width: {{ count * 15 }}%"></span>
+                    </div>
+                    <span class="mono muted">{{ count }}</span>
+                </div>
+                {% else %}
+                <div class="empty">No location data yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
